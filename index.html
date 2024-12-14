@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Masdit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            overflow: hidden;
+            position: relative;
+            transition: background 1s ease;
+        }
+        .calculator {
+            position: relative;
+            z-index: 1;
+        }
+        .button {
+            width: 100%;
+            padding: 16px;
+            border-radius: 8px;
+            font-weight: 250;
+            background-color: #e2e8f0;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .button:hover {
+            background-color: #cbd5e1;
+        }
+        .button:active {
+            background-color: #a0aec0;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(0, 150, 255, 0.5);
+        }
+        .button span {
+            position: relative;
+            z-index: 1;
+            transition: color 0.3s;
+        }
+        .button:active span {
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(0, 150, 255, 0.5);
+        }
+        .wave {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: wave-animation 0.6s linear;
+            pointer-events: none;
+        }
+        @keyframes wave-animation {
+            to {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen" onclick="createWave(event)">
+    <div class="flex flex-col items-center">
+        <div class="calculator bg-white p-6 rounded-lg shadow-lg w-full max-w-xs">
+            <div class="mb-4">
+                <input type="text" id="display" class="w-full p-4 text-right text-2xl border border-gray-300 rounded" readonly>
+            </div>
+            <div class="grid grid-cols-4 gap-2">
+                <button class="button" onclick="playSound(); clearDisplay(); changeBackgroundColor()"><span>C</span></button>
+                <button class="button" onclick="playSound(); appendToDisplay('/'); changeBackgroundColor()"><span>/</span></button>
+                <button class="button" onclick="playSound(); appendToDisplay('*'); changeBackgroundColor()"><span>*</span></button>
+                <button class="button" onclick="playSound(); deleteLast(); changeBackgroundColor()"><span>DEL</span></button>
+                <button class="button" onclick="playSound(); appendToDisplay('7'); changeBackgroundColor()"><span>7</span></button>
+                <button class="button" onclick="playSound(); appendToDisplay('8'); changeBackgroundColor()"><span>8</span></button>
+                <button class="button" onclick="playSound(); appendToDisplay('9'); changeBackgroundColor()"><span>9</span></button>
+                <button class="button" onclick="playSound(); appendToDisplay('-'); changeBackgroundColor()"><span>-</span></button>
+                <button class="button" onclick="playSound(); appendToDisplay('4'); changeBackgroundColor()"><span>4</span></button>
+                <button class="button" onclick="playSound(); appendToDisplay('5'); changeBackgroundColor()"><span>5</span></button>
+                <button class="button" onclick="playSound(); appendToDisplay('6'); changeBackgroundColor()"><span>6</span></button>
+                <button class="button" onclick="playSound(); appendToDisplay('+'); changeBackgroundColor()"><span>+</span></button>
+                <button class="button" onclick="playSound(); appendToDisplay('1'); changeBackgroundColor()"><span>1</span></button>
+                <button class="button" onclick="playSound(); appendToDisplay('2'); changeBackgroundColor()"><span>2</span></button>
+                <button class="button" onclick="playSound(); appendToDisplay('3'); changeBackgroundColor()"><span>3</span></button>
+                <button class="button row-span-2" onclick="playSound(); calculateResult(); changeBackgroundColor()"><span>=</span></button>
+                <button class="button col-span-2" onclick="playSound(); appendToDisplay('0'); changeBackgroundColor()"><span>0</span></button>
+                <button class="button" onclick="playSound(); appendToDisplay('.'); changeBackgroundColor()"><span>.</span></button>
+            </div>
+        </div>
+    <audio id="click-sound" src="clicks.mp3"></audio>
+
+    <script>
+        function playSound() {
+            const sound = document.getElementById('click-sound');
+            sound.currentTime = 0;
+            sound.play();
+        }
+
+        function appendToDisplay(value) {
+            document.getElementById('display').value += value;
+        }
+
+        function clearDisplay() {
+            document.getElementById('display').value = '';
+        }
+
+        function deleteLast() {
+            let display = document.getElementById('display');
+            display.value = display.value.slice(0, -1);
+        }
+
+        function calculateResult() {
+            let display = document.getElementById('display');
+            try {
+                display.value = eval(display.value);
+            } catch (e) {
+                display.value = 'Error';
+            }
+        }
+
+        function createWave(event) {
+            const wave = document.createElement('span');
+            wave.className = 'wave';
+            document.body.appendChild(wave);
+            const rect = event.target.getBoundingClientRect();
+            const size = Math.min(rect.width, rect.height) * 1.5;
+            wave.style.width = wave.style.height = `${size}px`;
+            wave.style.left = `${event.clientX - rect.left - size / 2}px`;
+            wave.style.top = `${event.clientY - rect.top - size / 2}px`;
+            wave.addEventListener('animationend', () => {
+                wave.remove();
+            });
+        }
+
+        const colors = ['#6a11cb', '#2575fc', '#ff7e5f', '#feb47b', '#ff6a00'];
+        let currentColorIndex = 0;
+
+        function changeBackgroundColor() {
+            currentColorIndex = (currentColorIndex + 1) % colors.length;
+            document.body.style.background = `linear-gradient(135deg, ${colors[currentColorIndex]}, ${colors[(currentColorIndex + 1) % colors.length]})`;
+        }
+    </script>
+</body>
+</html>
